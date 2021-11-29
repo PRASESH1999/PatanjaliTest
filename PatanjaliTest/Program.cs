@@ -15,7 +15,7 @@ builder.Services.AddSingleton<IDatabaseSettings>(sp =>
 builder.Services.AddSingleton<IMongoClient, MongoClient>(
         sp =>
         {
-            IDatabaseSettings settings = sp.GetRequiredService<IOptions<DatabaseSettings>>().Value;
+            DatabaseSettings settings = sp.GetRequiredService<IOptions<DatabaseSettings>>().Value;
             return new MongoClient(settings.ConnectionString);
         }
     );

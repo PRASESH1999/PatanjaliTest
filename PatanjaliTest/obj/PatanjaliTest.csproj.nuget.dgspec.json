@@ -1,20 +1,20 @@
 {
   "format": 1,
   "restore": {
-    "D:\\DotNetProjects\\patanjaliTestGit\\PatanjaliTest\\PatanjaliTest\\PatanjaliTest.csproj": {}
+    "D:\\Work\\Patanjali\\patajali_api\\PatanjaliTest\\PatanjaliTest.csproj": {}
   },
   "projects": {
-    "D:\\DotNetProjects\\patanjaliTestGit\\PatanjaliTest\\PatanjaliTest\\PatanjaliTest.csproj": {
+    "D:\\Work\\Patanjali\\patajali_api\\PatanjaliTest\\PatanjaliTest.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "D:\\DotNetProjects\\patanjaliTestGit\\PatanjaliTest\\PatanjaliTest\\PatanjaliTest.csproj",
+        "projectUniqueName": "D:\\Work\\Patanjali\\patajali_api\\PatanjaliTest\\PatanjaliTest.csproj",
         "projectName": "PatanjaliTest",
-        "projectPath": "D:\\DotNetProjects\\patanjaliTestGit\\PatanjaliTest\\PatanjaliTest\\PatanjaliTest.csproj",
-        "packagesPath": "C:\\Users\\mahar\\.nuget\\packages\\",
-        "outputPath": "D:\\DotNetProjects\\patanjaliTestGit\\PatanjaliTest\\PatanjaliTest\\obj\\",
+        "projectPath": "D:\\Work\\Patanjali\\patajali_api\\PatanjaliTest\\PatanjaliTest.csproj",
+        "packagesPath": "C:\\Users\\swgma\\.nuget\\packages\\",
+        "outputPath": "D:\\Work\\Patanjali\\patajali_api\\PatanjaliTest\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
-          "C:\\Users\\mahar\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Users\\swgma\\AppData\\Roaming\\NuGet\\NuGet.Config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
         "originalTargetFrameworks": [
