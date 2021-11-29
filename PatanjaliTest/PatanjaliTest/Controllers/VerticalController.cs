@@ -44,13 +44,17 @@ namespace PatanjaliTest.Controllers
                 var limit = itemPerPage;
 
                 var sortFilter = new BsonDocument(sort, sortDirection);
+                var projectionFilter = Builders<Vertical>.Projection
+                    .Include(x => x.Name);
 
                 var verticals = await _verticalCollection
                     .Find("{}")
                     .Limit(limit)
                     .Skip(skip)
+                    .Project<VerticalProjection>(projectionFilter)
                     .Sort(sortFilter)
                     .ToListAsync(cancellationToken);
+
 
                 return Ok(verticals);
             }
@@ -93,6 +97,16 @@ namespace PatanjaliTest.Controllers
         {
             public string DivisionId { get; set; }
             public string verticalName { get; set; }
+        }
+
+        public class VerticalProjection
+        {
+            [BsonRepresentation(BsonType.ObjectId)]
+            [BsonId]
+            public string Id { get; set; }
+
+            [BsonElement("name")]
+            public string Name { get; set; }
         }
     }
 }
