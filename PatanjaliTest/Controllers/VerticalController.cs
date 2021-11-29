@@ -175,5 +175,10 @@ namespace PatanjaliTest.Controllers
         {
             public string DivisionName { get; set; }
         }
+
+        public class dummy
+        {
+            public string Name { get; set; }
+        }
     }
 }
