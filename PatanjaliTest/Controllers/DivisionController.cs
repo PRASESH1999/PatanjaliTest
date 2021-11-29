@@ -1,7 +1,4 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using PatanjaliApi.Models;
-
-namespace PatanjaliApi.Controllers;
+﻿namespace PatanjaliTest.Controllers;
 
 [ApiController]
 [Route("[controller]")]

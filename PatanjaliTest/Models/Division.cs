@@ -1,7 +1,4 @@
-﻿using MongoDB.Bson;
-using MongoDB.Bson.Serialization.Attributes;
-
-namespace PatanjaliApi.Models
+﻿namespace PatanjaliTest.Models
 {
     public class Division
     {
