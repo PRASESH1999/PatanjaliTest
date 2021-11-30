@@ -1,7 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using PatanjaliApi.Models;
 
-namespace PatanjaliApi.Controllers;
+namespace PatanjaliTest.Controllers;
 
 [ApiController]
 [Route("[controller]")]
@@ -10,12 +9,14 @@ public class DivisionController : ControllerBase
 
     private IMongoCollection<Division> _divisionCollection;
 
+
     //ctor
     public DivisionController(IMongoDatabase database, IDatabaseSettings settings)
     {
         _divisionCollection = database.GetCollection<Division>(settings.DivisionCollectionName);
     }
 
+    // Get Division by Id
     [HttpGet("{divisionId}")]
     public async Task<IActionResult> Get(string divisionId, CancellationToken cancellationToken = default)
     {
@@ -34,6 +35,7 @@ public class DivisionController : ControllerBase
         });
     }
 
+    // Get Divisions
     [HttpGet]
     public async Task<IActionResult> Get(
         int limit = 10, [FromQuery]int page = 1, string sort = "created_at", int sortDirection = -1, CancellationToken cancellationToken = default)
@@ -52,6 +54,7 @@ public class DivisionController : ControllerBase
         return Ok(divisions);
     }
 
+    // Create new Division
     [HttpPost]
     public async Task<IActionResult> Create(AddInputModel inputModel, CancellationToken cancellationToken = default)
     {
@@ -66,6 +69,7 @@ public class DivisionController : ControllerBase
         return Ok();
     }
 
+    // Update Division
     [HttpPut("{id}")]
     public async Task<IActionResult> Update(string id, AddInputModel inputModel) 
     {
@@ -81,6 +85,7 @@ public class DivisionController : ControllerBase
         return Ok();
     }
 
+    //Delete division
     [HttpDelete("{id}")]
     public async Task<IActionResult> Delete(string id)
     {
@@ -91,17 +96,20 @@ public class DivisionController : ControllerBase
         return Ok();
     }
 
+    // Base or parent model class for create and update division
     public class BaseInputModel
     {
         public string Name { get; set; }
         public string Abbreviation { get; set; }
     }
 
+    // Child model class for create division
     public class AddInputModel : BaseInputModel
     {
         
     }
 
+    // Child model class for update division
     public class UpdateInputModel : BaseInputModel
     {
 
