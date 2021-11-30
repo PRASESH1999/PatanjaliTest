@@ -1,5 +1,4 @@
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
+﻿using MongoDB.Driver;
 
 namespace PatanjaliTest.Controllers
 {
@@ -8,18 +7,19 @@ namespace PatanjaliTest.Controllers
     public class VerticalController : ControllerBase
     {
         private IMongoCollection<Vertical> _verticalCollection;
+        private IMongoCollection<Division> _divisionCollection;
 
         //ctor
         public VerticalController(IMongoDatabase database, IDatabaseSettings settings)
         {
             _verticalCollection = database.GetCollection<Vertical>(settings.VerticalCollectionName);
+            _divisionCollection = database.GetCollection<Division>(settings.DivisionCollectionName);
         }
 
         //Create a Vertical
         [HttpPost]
         public async Task<IActionResult> Post(VerticalInput input)
         {
-            var dateNow = DateTime.UtcNow;
             var verticalName = input.verticalName;
             var divisionId = input.DivisionId;
 
@@ -38,25 +38,112 @@ namespace PatanjaliTest.Controllers
         [HttpGet]
         public async Task<IActionResult> Get([FromQuery] int page = 1, [FromQuery] int itemPerPage = 10, [FromQuery] string sort = "created_at", [FromQuery] int sortDirection = -1, CancellationToken cancellationToken = default)
         {
+            if (itemPerPage > 20)
+            {
+                itemPerPage = 20;
+            }
             try
             {
                 var skip = itemPerPage * (page - 1);
                 var limit = itemPerPage;
 
                 var sortFilter = new BsonDocument(sort, sortDirection);
+                var verticalProjection = Builders<Vertical>.Projection
+                    .Include(v => v.Id)
+                    .Include(v => v.Name)
+                    .Include(v => v.DivisionId)
+                    .Include(v => v.CreatedAt)
+                    .Include(v => v.UpdatedAt);
 
                 var verticals = await _verticalCollection
                     .Find("{}")
-                    .Limit(limit)
-                    .Skip(skip)
+                    .Project(x => new
+                    {
+                        Id = x.Id,
+                        Name = x.Name,
+                        DivisionId = x.DivisionId,
+                        CreatedAt = x.CreatedAt,
+                        UpdatedAt = x.UpdatedAt
+                    })
                     .Sort(sortFilter)
+                    .Skip(skip)
+                    .Limit(limit)
                     .ToListAsync(cancellationToken);
 
-                return Ok(verticals);
+                //extracting Division ID
+                List<string> divisionIds = new List<string>();
+                foreach (var vertical in verticals)
+                {
+                    if (divisionIds.Contains(vertical.DivisionId))
+                    {
+                        continue;
+                    }
+                    divisionIds.Add(vertical.DivisionId);
+                }
+
+                //getting list of divisions
+                var filter = Builders<Division>.Filter.In(d => d.Id, divisionIds);
+                var projectionFilter = Builders<Division>.Projection
+                    .Include(x => x.Name);
+                var divisions = await _divisionCollection
+                    .Find(filter)
+                    .Project<divisionProjection>(projectionFilter)
+                    .ToListAsync();
+
+                //Linking divisions with the verticals
+                List<VerticalProjectionClass> finalVertical = new List<VerticalProjectionClass>();
+                foreach (var vertical in verticals)
+                {
+                    foreach (var division in divisions)
+                    {
+                        if (vertical.DivisionId == division.Id)
+                        {
+                            finalVertical.Add(new VerticalProjectionClass
+                            {
+                                Id = vertical.Id,
+                                Name = vertical.Name,
+                                DivisionId = vertical.DivisionId,
+                                CreatedAt = vertical.CreatedAt,
+                                UpdatedAt = vertical.UpdatedAt,
+                                DivisionName = division.Name
+                            });
+                        }
+                    }
+                }
+                return Ok(new
+                {
+                    Page = page,
+                    TotalCount = await _verticalCollection.CountAsync(_ => true),
+                    Data = finalVertical
+                });
             }
             catch (Exception ex)
             {
                 throw;
+            }
+
+        }
+
+        [HttpGet("{id}")]
+        public async Task<IActionResult> Get(string id, CancellationToken cancellationToken = default)
+        {
+            try
+            {
+                var filter = Builders<Vertical>.Filter.Eq(v => v.Id, id);
+                var result = await _verticalCollection.Find(filter).FirstOrDefaultAsync();
+
+                var divisionResult = await _divisionCollection.Find(Builders<Division>.Filter.Eq(v => v.Id, result.DivisionId)).FirstOrDefaultAsync();
+
+                var newResult = new
+                {
+                    Name = result.Name,
+                    Division = divisionResult?.Name
+                };
+                return Ok(newResult);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
             }
 
         }
@@ -89,10 +176,43 @@ namespace PatanjaliTest.Controllers
             return Ok();
         }
 
+        //Extra classes
+        public class divisionProjection
+        {
+            [BsonId]
+            [BsonRepresentation(BsonType.ObjectId)]
+            public string Id { get; set; }
+            [BsonElement("name")]
+            public string Name { get; set; }
+        }
         public class VerticalInput
         {
             public string DivisionId { get; set; }
             public string verticalName { get; set; }
+        }
+
+        public record VerticalRecord(string Id, string Name, string Divison);
+
+        [BsonIgnoreExtraElements]
+        public class VerticalWithDivision : Vertical
+        {
+            public string DivisionName { get; set; }
+        }
+
+        public class VerticalProjectionClass
+        {
+            [BsonRepresentation(BsonType.ObjectId)]
+            public string Id { get; set; }
+
+            public string Name { get; set; }
+
+            public string DivisionId { get; set; }
+
+            public DateTime CreatedAt { get; set; }
+
+            public DateTime UpdatedAt { get; set; }
+
+            public string DivisionName { get; set; }
         }
     }
 }

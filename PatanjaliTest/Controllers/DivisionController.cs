@@ -1,6 +1,10 @@
+<<<<<<< HEAD
+﻿namespace PatanjaliTest.Controllers;
+=======
 ﻿using Microsoft.AspNetCore.Mvc;
 
 namespace PatanjaliTest.Controllers;
+>>>>>>> 34065605a465c518202d71bee3707d59cca2c29a
 
 [ApiController]
 [Route("[controller]")]
