@@ -38,18 +38,36 @@ namespace PatanjaliTest.Controllers
         [HttpGet]
         public async Task<IActionResult> Get([FromQuery] int page = 1, [FromQuery] int itemPerPage = 10, [FromQuery] string sort = "created_at", [FromQuery] int sortDirection = -1, CancellationToken cancellationToken = default)
         {
+            if (itemPerPage > 20)
+            {
+                itemPerPage = 20;
+            }
             try
             {
                 var skip = itemPerPage * (page - 1);
                 var limit = itemPerPage;
 
                 var sortFilter = new BsonDocument(sort, sortDirection);
+                var verticalProjection = Builders<Vertical>.Projection
+                    .Include(v => v.Id)
+                    .Include(v => v.Name)
+                    .Include(v => v.DivisionId)
+                    .Include(v => v.CreatedAt)
+                    .Include(v => v.UpdatedAt);
 
                 var verticals = await _verticalCollection
                     .Find("{}")
-                    .Limit(limit)
-                    .Skip(skip)
+                    .Project(x => new
+                    {
+                        Id = x.Id,
+                        Name = x.Name,
+                        DivisionId = x.DivisionId,
+                        CreatedAt = x.CreatedAt,
+                        UpdatedAt = x.UpdatedAt
+                    })
                     .Sort(sortFilter)
+                    .Skip(skip)
+                    .Limit(limit)
                     .ToListAsync(cancellationToken);
 
                 //extracting Division ID
@@ -73,14 +91,14 @@ namespace PatanjaliTest.Controllers
                     .ToListAsync();
 
                 //Linking divisions with the verticals
-                List<VerticalWithDivision> finalVertical = new List<VerticalWithDivision>();
+                List<VerticalProjectionClass> finalVertical = new List<VerticalProjectionClass>();
                 foreach (var vertical in verticals)
                 {
                     foreach (var division in divisions)
                     {
                         if (vertical.DivisionId == division.Id)
                         {
-                            finalVertical.Add(new VerticalWithDivision
+                            finalVertical.Add(new VerticalProjectionClass
                             {
                                 Id = vertical.Id,
                                 Name = vertical.Name,
@@ -92,7 +110,12 @@ namespace PatanjaliTest.Controllers
                         }
                     }
                 }
-                return Ok(finalVertical);
+                return Ok(new
+                {
+                    Page = page,
+                    TotalCount = await _verticalCollection.CountAsync(_ => true),
+                    Data = finalVertical
+                });
             }
             catch (Exception ex)
             {
@@ -176,9 +199,20 @@ namespace PatanjaliTest.Controllers
             public string DivisionName { get; set; }
         }
 
-        public class dummy
+        public class VerticalProjectionClass
         {
+            [BsonRepresentation(BsonType.ObjectId)]
+            public string Id { get; set; }
+
             public string Name { get; set; }
+
+            public string DivisionId { get; set; }
+
+            public DateTime CreatedAt { get; set; }
+
+            public DateTime UpdatedAt { get; set; }
+
+            public string DivisionName { get; set; }
         }
     }
 }
