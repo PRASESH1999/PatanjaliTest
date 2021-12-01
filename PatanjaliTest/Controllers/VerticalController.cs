@@ -48,12 +48,12 @@ namespace PatanjaliTest.Controllers
                 var limit = itemPerPage;
 
                 var sortFilter = new BsonDocument(sort, sortDirection);
-                var verticalProjection = Builders<Vertical>.Projection
-                    .Include(v => v.Id)
-                    .Include(v => v.Name)
-                    .Include(v => v.DivisionId)
-                    .Include(v => v.CreatedAt)
-                    .Include(v => v.UpdatedAt);
+                //var verticalProjection = Builders<Vertical>.Projection
+                //    .Include(v => v.Id)
+                //    .Include(v => v.Name)
+                //    .Include(v => v.DivisionId)
+                //    .Include(v => v.CreatedAt)
+                //    .Include(v => v.UpdatedAt);
 
                 var verticals = await _verticalCollection
                     .Find("{}")
