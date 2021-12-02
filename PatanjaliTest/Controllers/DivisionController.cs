@@ -1,7 +1,3 @@
-﻿using Microsoft.AspNetCore.Mvc;
-
-namespace PatanjaliTest.Controllers;
-
 [ApiController]
 [Route("[controller]")]
 public class DivisionController : ControllerBase

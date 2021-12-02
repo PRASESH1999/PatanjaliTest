@@ -586,19 +586,24 @@
     ]
   },
   "packageFolders": {
-    "C:\\Users\\swgma\\.nuget\\packages\\": {}
+    "C:\\Users\\ldipe\\.nuget\\packages\\": {},
+    "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages": {}
   },
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "D:\\Work\\Patanjali\\patajali_api\\PatanjaliTest\\PatanjaliTest.csproj",
+      "projectUniqueName": "C:\\Users\\ldipe\\OneDrive\\Desktop\\coding\\PatanjaliTest\\PatanjaliTest\\PatanjaliTest.csproj",
       "projectName": "PatanjaliTest",
-      "projectPath": "D:\\Work\\Patanjali\\patajali_api\\PatanjaliTest\\PatanjaliTest.csproj",
-      "packagesPath": "C:\\Users\\swgma\\.nuget\\packages\\",
-      "outputPath": "D:\\Work\\Patanjali\\patajali_api\\PatanjaliTest\\obj\\",
+      "projectPath": "C:\\Users\\ldipe\\OneDrive\\Desktop\\coding\\PatanjaliTest\\PatanjaliTest\\PatanjaliTest.csproj",
+      "packagesPath": "C:\\Users\\ldipe\\.nuget\\packages\\",
+      "outputPath": "C:\\Users\\ldipe\\OneDrive\\Desktop\\coding\\PatanjaliTest\\PatanjaliTest\\obj\\",
       "projectStyle": "PackageReference",
+      "fallbackFolders": [
+        "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
+      ],
       "configFilePaths": [
-        "C:\\Users\\swgma\\AppData\\Roaming\\NuGet\\NuGet.Config",
+        "C:\\Users\\ldipe\\AppData\\Roaming\\NuGet\\NuGet.Config",
+        "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
         "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
       ],
       "originalTargetFrameworks": [
