@@ -48,12 +48,6 @@ namespace PatanjaliTest.Controllers
                 var limit = itemPerPage;
 
                 var sortFilter = new BsonDocument(sort, sortDirection);
-                //var verticalProjection = Builders<Vertical>.Projection
-                //    .Include(v => v.Id)
-                //    .Include(v => v.Name)
-                //    .Include(v => v.DivisionId)
-                //    .Include(v => v.CreatedAt)
-                //    .Include(v => v.UpdatedAt);
 
                 var verticals = await _verticalCollection
                     .Find("{}")
@@ -71,6 +65,7 @@ namespace PatanjaliTest.Controllers
                     .ToListAsync(cancellationToken);
 
                 //extracting Division ID
+                /*
                 List<string> divisionIds = new List<string>();
                 foreach (var vertical in verticals)
                 {
@@ -80,17 +75,30 @@ namespace PatanjaliTest.Controllers
                     }
                     divisionIds.Add(vertical.DivisionId);
                 }
+                */
+
+                //Doing same thing as above Loop.
+                var divisionIds = (from v in verticals where v.DivisionId is not null select v.DivisionId).Distinct();
+
+                // Does same thing as above
+                var divisionIds1 = verticals.Where(v => v.DivisionId is not null).Select(v => v.DivisionId).Distinct();
 
                 //getting list of divisions
                 var filter = Builders<Division>.Filter.In(d => d.Id, divisionIds);
-                var projectionFilter = Builders<Division>.Projection
-                    .Include(x => x.Name);
+
                 var divisions = await _divisionCollection
                     .Find(filter)
-                    .Project<divisionProjection>(projectionFilter)
+                    .Project(x => new
+                    {
+                        Id = x.Id,
+                        Name = x.Name
+                    })
                     .ToListAsync();
 
+                var divisionsDict = divisions.ToDictionary(x => x.Id, x => x.Name);
+
                 //Linking divisions with the verticals
+                /*
                 List<VerticalProjectionClass> finalVertical = new List<VerticalProjectionClass>();
                 foreach (var vertical in verticals)
                 {
@@ -110,11 +118,25 @@ namespace PatanjaliTest.Controllers
                         }
                     }
                 }
+                */
+
+                var finalVerticals = verticals.Select(x => new
+                {
+                    Id = x.Id,
+                    Name = x.Name,
+                    DivisionId = x.DivisionId,
+                    CreatedAt = x.CreatedAt,
+                    UpdatedAt = x.UpdatedAt,
+                    DivisionName = divisionsDict.ContainsKey(x.DivisionId)
+                                   ? divisionsDict[x.DivisionId]
+                                   : null
+                });
+
                 return Ok(new
                 {
                     Page = page,
                     TotalCount = await _verticalCollection.CountAsync(_ => true),
-                    Data = finalVertical
+                    Data = finalVerticals
                 });
             }
             catch (Exception ex)
