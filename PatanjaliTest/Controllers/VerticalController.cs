@@ -38,6 +38,8 @@ namespace PatanjaliTest.Controllers
         [HttpGet]
         public async Task<IActionResult> Get([FromQuery] int page = 1, [FromQuery] int itemPerPage = 10, [FromQuery] string sort = "created_at", [FromQuery] int sortDirection = -1, CancellationToken cancellationToken = default)
         {
+            var query = _verticalCollection.AsQueryable();
+            Console.WriteLine(query);
             if (itemPerPage > 20)
             {
                 itemPerPage = 20;
@@ -48,12 +50,6 @@ namespace PatanjaliTest.Controllers
                 var limit = itemPerPage;
 
                 var sortFilter = new BsonDocument(sort, sortDirection);
-                var verticalProjection = Builders<Vertical>.Projection
-                    .Include(v => v.Id)
-                    .Include(v => v.Name)
-                    .Include(v => v.DivisionId)
-                    .Include(v => v.CreatedAt)
-                    .Include(v => v.UpdatedAt);
 
                 var verticals = await _verticalCollection
                     .Find("{}")
@@ -71,29 +67,63 @@ namespace PatanjaliTest.Controllers
                     .ToListAsync(cancellationToken);
 
                 //extracting Division ID
-                List<string> divisionIds = new List<string>();
-                foreach (var vertical in verticals)
+                //List<string> divisionIds = new List<string>();
+                //foreach (var vertical in verticals)
+                //{
+                //    if (divisionIds.Contains(vertical.DivisionId))
+                //    {
+                //        continue;
+                //    }
+                //    divisionIds.Add(vertical.DivisionId);
+                //}
+
+                //Doing same thing as above Loop.
+                var divisionIds = (from v in verticals where v.DivisionId is not null select v.DivisionId).Distinct();
+
+                // Does same thing as above
+                var divisionIds2 = verticals.Where(v => v.DivisionId is not null).Select(v => v.DivisionId).Distinct();
+
+
+
+                //getting list of divisions;
+                var divisions = await _divisionCollection
+                    .Find(Builders<Division>.Filter.In(d => d.Id, divisionIds))
+                    .Project(
+                        x => new
+                        {
+                            Id = x.Id,
+                            Name = x.Name
+                        }
+                    )
+                    .ToListAsync();
+
+                /*Dictionary<string, string> divisionsDict = new Dictionary<string, string>();
+                foreach (var division in divisions)
                 {
-                    if (divisionIds.Contains(vertical.DivisionId))
+                    if (divisionsDict.ContainsKey(division.Id))
                     {
                         continue;
                     }
-                    divisionIds.Add(vertical.DivisionId);
-                }
+                    divisionsDict.Add(division.Id, division.Name);
+                }*/
 
-                //getting list of divisions
-                var filter = Builders<Division>.Filter.In(d => d.Id, divisionIds);
-                var projectionFilter = Builders<Division>.Projection
-                    .Include(x => x.Name);
-                var divisions = await _divisionCollection
-                    .Find(filter)
-                    .Project<divisionProjection>(projectionFilter)
-                    .ToListAsync();
+                //Does same thing as above Loop
+                var divisionsDict = divisions.ToDictionary(x => x.Id, x => x);
 
                 //Linking divisions with the verticals
-                List<VerticalProjectionClass> finalVertical = new List<VerticalProjectionClass>();
-                foreach (var vertical in verticals)
+
+                //List<VerticalProjectionClass> finalVertical = new List<VerticalProjectionClass>();
+                /*foreach (var vertical in verticals)
                 {
+                    finalVertical.Add(new VerticalProjectionClass
+                    {
+                        Id = vertical.Id,
+                        Name = vertical.Name,
+                        DivisionId = vertical.DivisionId,
+                        CreatedAt = vertical.CreatedAt,
+                        UpdatedAt = vertical.UpdatedAt,
+                        DivisionName = divisionsDict.ContainsKey(vertical.DivisionId) ? divisionsDict[vertical.DivisionId] : ""
+                    });
                     foreach (var division in divisions)
                     {
                         if (vertical.DivisionId == division.Id)
@@ -109,12 +139,23 @@ namespace PatanjaliTest.Controllers
                             });
                         }
                     }
-                }
+                }*/
+
+                //does same thing as above table.
+                var finalVerticals = verticals.Select(x => new
+                {
+                    Id = x.Id,
+                    Name = x.Name,
+                    DivisionName = divisionsDict.ContainsKey(x.DivisionId)
+                                    ? divisionsDict[x.DivisionId].Name
+                                    : null
+                });
+
                 return Ok(new
                 {
                     Page = page,
                     TotalCount = await _verticalCollection.CountAsync(_ => true),
-                    Data = finalVertical
+                    Data = finalVerticals
                 });
             }
             catch (Exception ex)
@@ -123,6 +164,39 @@ namespace PatanjaliTest.Controllers
             }
 
         }
+
+        //[HttpGet]
+        /*public async Task<IActionResult> TestGet(CancellationToken cancellationToken = default)
+        {
+            try
+            {
+                var result = await _verticalCollection.Aggregate()
+                    .Lookup<Vertical, Division, VerticalLookup>(
+                        _divisionCollection,
+                        v => v.DivisionId,
+                        d => d.Id,
+                        l => l.Divisions
+                    )
+                    .ToListAsync();
+
+
+                var result2 = _divisionCollection.Aggregate()
+                        .Lookup<Division, Vertical, DivisionLookup>(
+                            _verticalCollection,
+                            v => v.Id,
+                            d => d.DivisionId,
+                            l => l.Verticals
+                        ).ToListAsync();
+
+
+                return Ok(result);
+
+            }
+            catch (Exception ex)
+            {
+                throw;
+            }
+        }*/
 
         [HttpGet("{id}")]
         public async Task<IActionResult> Get(string id, CancellationToken cancellationToken = default)
@@ -213,6 +287,18 @@ namespace PatanjaliTest.Controllers
             public DateTime UpdatedAt { get; set; }
 
             public string DivisionName { get; set; }
+        }
+
+        [BsonIgnoreExtraElements]
+        public class VerticalLookup : Vertical
+        {
+            public List<Division> Divisions { get; set; }
+        }
+
+        [BsonIgnoreExtraElements]
+        public class DivisionLookup : Division
+        {
+            public List<Vertical> Verticals { get; set; }
         }
     }
 }

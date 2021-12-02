@@ -1,7 +1,4 @@
 var builder = WebApplication.CreateBuilder(args);
-
-// Add services to the container.
-
 //Initializing Mongo Client
 
 //Database Settings
@@ -26,18 +23,24 @@ builder.Services.AddSingleton<IMongoDatabase>(
         {
             IDatabaseSettings settings = sp.GetRequiredService<IOptions<DatabaseSettings>>().Value;
             IMongoClient client = sp.GetRequiredService<IMongoClient>();
-
             return client.GetDatabase(settings.DatabaseName);
         }
     );
 
-
 builder.Services.AddControllers();
+
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
+
+
 var app = builder.Build();
+
+app.UseCors(options =>
+options.WithOrigins("http://localhost:3000")
+.AllowAnyMethod()
+.AllowAnyHeader());
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
