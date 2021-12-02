@@ -51,7 +51,13 @@ public class DivisionController : ControllerBase
             .Sort(sortDivision)
             .ToListAsync();
 
-        return Ok(divisions);
+        var count = await _divisionCollection.CountDocumentsAsync(filter);
+
+        return Ok(new
+        {
+            TotalCount = count,
+            Data = divisions
+        });
     }
 
     // Create new Division

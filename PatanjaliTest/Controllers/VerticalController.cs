@@ -8,11 +8,13 @@ namespace PatanjaliTest.Controllers
     public class VerticalController : ControllerBase
     {
         private IMongoCollection<Vertical> _verticalCollection;
+        private IMongoCollection<Division> _divisionCollection;
 
         //ctor
         public VerticalController(IMongoDatabase database, IDatabaseSettings settings)
         {
             _verticalCollection = database.GetCollection<Vertical>(settings.VerticalCollectionName);
+            _divisionCollection = database.GetCollection<Division>(settings.DivisionCollectionName);
         }
 
         //Create a Vertical
@@ -45,8 +47,14 @@ namespace PatanjaliTest.Controllers
 
                 var sortFilter = new BsonDocument(sort, sortDirection);
 
-                var verticals = await _verticalCollection
-                    .Find("{}")
+                var verticals = await _divisionCollection
+                    .Aggregate()
+                    .Lookup<Division, Vertical, VerticalWithDivision>(
+                        _verticalCollection,
+                        d => d.Id,
+                        v => v.DivisionId,
+                        l => l.vertical
+                    )
                     .Limit(limit)
                     .Skip(skip)
                     .Sort(sortFilter)
@@ -93,6 +101,10 @@ namespace PatanjaliTest.Controllers
         {
             public string DivisionId { get; set; }
             public string verticalName { get; set; }
+        }
+        public class VerticalWithDivision : Division 
+        { 
+            public List<Vertical> vertical { get; set; }
         }
     }
 }

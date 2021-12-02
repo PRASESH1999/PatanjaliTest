@@ -1,0 +1,16 @@
+{
+  "Version": 1,
+  "ProjectMap": {
+    "3a5a2c41-93dc-459c-a5fa-5fa1b9525006": {
+      "ProjectGuid": "3a5a2c41-93dc-459c-a5fa-5fa1b9525006",
+      "DisplayName": "PatanjaliTest",
+      "ColorIndex": 0
+    },
+    "a2fe74e1-b743-11d0-ae1a-00a0c90fffc3": {
+      "ProjectGuid": "a2fe74e1-b743-11d0-ae1a-00a0c90fffc3",
+      "DisplayName": "Miscellaneous Files",
+      "ColorIndex": -1
+    }
+  },
+  "NextColorIndex": 1
+}
