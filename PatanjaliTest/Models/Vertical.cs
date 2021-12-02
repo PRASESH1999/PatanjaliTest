@@ -1,6 +1,5 @@
 ﻿namespace PatanjaliTest.Models
 {
-    [BsonIgnoreExtraElements]
     public class Vertical : BaseModel
     {
         [BsonElement("division_id")]

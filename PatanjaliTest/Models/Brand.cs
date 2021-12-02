@@ -1,6 +1,5 @@
 ﻿namespace PatanjaliTest.Models
 {
-    [BsonIgnoreExtraElements]
     public class Brand : BaseModel
     {
 
