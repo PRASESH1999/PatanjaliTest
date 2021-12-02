@@ -7,6 +7,8 @@
         public string VerticalCollectionName { get; set; }
         public string DivisionCollectionName { get; set; }
         public string BrandCollectionName { get; set; }
+        public string ProductCollectionName { get; set; }
+        public string UnitCollectionName { get; set; }
     }
 
     public interface IDatabaseSettings
@@ -16,5 +18,7 @@
         string VerticalCollectionName { get; set; }
         string DivisionCollectionName { get; set; }
         string BrandCollectionName { get; set; }
+        string ProductCollectionName { get; set; }
+        string UnitCollectionName { get; set; }
     }
 }

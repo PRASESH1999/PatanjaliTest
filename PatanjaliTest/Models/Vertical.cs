@@ -3,7 +3,6 @@
     public class Vertical : BaseModel
     {
         [BsonElement("division_id")]
-        //[BsonRepresentation(BsonType.ObjectId)]
         public string DivisionId { get; set; }
 
         [BsonElement("user_ids")]

@@ -36,7 +36,7 @@ namespace PatanjaliTest.Controllers
 
         // Get Every Data in Verticals Colelction
         [HttpGet]
-        public async Task<IActionResult> Get([FromQuery] int page = 1, [FromQuery] int itemPerPage = 10, [FromQuery] string sort = "created_at", [FromQuery] int sortDirection = -1, CancellationToken cancellationToken = default)
+        public async Task<IActionResult> Get(int page = 1, int itemPerPage = 10, string sort = "created_at", int sortDirection = -1, CancellationToken cancellationToken = default)
         {
             if (itemPerPage > 20)
             {
